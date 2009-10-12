@@ -90,12 +90,13 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		protected void NotifyPropertyChanged(string propertyName, object oldValue, object newValue)
+		protected void NotifyPropertyChanged(string propertyName)
 		{
-			PropertyDescriptor property;
-			if (Properties.TryGetValue(propertyName, out property))
+			var propertyChanged = PropertyChanged;
+
+			if (propertyChanged != null)
 			{
-				NotifyPropertyChanged(property, oldValue, newValue);
+				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
 
@@ -287,6 +288,7 @@ namespace Castle.Components.DictionaryAdapter
 					var currentValue = GetEffectivePropertyValue(descriptor);
 					changed |= NotifyIfChanged(descriptor, readonlyProperty.Value, currentValue);
 				}
+				adapter.NotifyIsValidChanged();
 				return changed;
 			}
 

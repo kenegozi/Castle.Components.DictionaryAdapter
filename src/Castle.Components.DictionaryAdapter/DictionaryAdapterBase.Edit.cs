@@ -20,12 +20,13 @@ namespace Castle.Components.DictionaryAdapter
 
 	public abstract partial class DictionaryAdapterBase
 	{
+		private bool suppressEditing;
 		private Stack<Dictionary<string, object>> updates;
 		private HashSet<IEditableObject> editDependencies;
 
 		public bool CanEdit
 		{
-			get { return updates != null; }
+			get { return !suppressEditing && updates != null; }
 			set { updates = value ? new Stack<Dictionary<string, object>>() : null; }
 		}
 
@@ -73,27 +74,36 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			if (IsEditing)
 			{
-				var top = updates.Pop();
+				suppressEditing = true;
 
-				if (top.Count > 0)
+				try
 				{
-					using (TrackReadonlyPropertyChanges())
+					var top = updates.Pop();
+
+					if (top.Count > 0)
 					{
-						foreach (var update in top.ToArray())
+						using (TrackReadonlyPropertyChanges())
 						{
-							object value = update.Value;
-							SetProperty(update.Key, ref value);
+							foreach (var update in top.ToArray())
+							{
+								object value = update.Value;
+								SetProperty(update.Key, ref value);
+							}
 						}
 					}
-				}
 
-				if (editDependencies != null)
-				{
-					foreach (var editDependency in editDependencies.ToArray())
+					if (editDependencies != null)
 					{
-						editDependency.EndEdit();
+						foreach (var editDependency in editDependencies.ToArray())
+						{
+							editDependency.EndEdit();
+						}
+						editDependencies.Clear();
 					}
-					editDependencies.Clear();
+				}
+				finally
+				{
+					suppressEditing = false;
 				}
 			}
 		}
@@ -116,6 +126,7 @@ namespace Castle.Components.DictionaryAdapter
 			if (IsEditing)
 			{
 				updates.Peek()[propertyName] = propertyValue;
+				NotifyIsValidChanged();
 				return true;
 			}
 			return false;

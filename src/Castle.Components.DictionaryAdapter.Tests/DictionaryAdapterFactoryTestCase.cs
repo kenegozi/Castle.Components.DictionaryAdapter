@@ -746,8 +746,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) => 
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			person.Name = "Craig";
@@ -761,8 +764,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			person.PropertyChanged += (s, e) =>
 			{
 				var details = e as PropertyModifiedEventArgs;
-				Assert.AreEqual(null, details.OldPropertyValue);
-				Assert.AreEqual("Craig", details.NewPropertyValue);
+				if (details != null)
+				{
+					Assert.AreEqual(null, details.OldPropertyValue);
+					Assert.AreEqual("Craig", details.NewPropertyValue);
+				}
 			};
 
 			person.Name = "Craig";
@@ -788,8 +794,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var container = factory.GetAdapter<IItemContainerWithComponent<IPerson>>(dictionary);
 			container.Item.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			container.Item.Name = "Craig";
@@ -803,10 +812,13 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var container = factory.GetAdapter<IItemContainerWithComponent<IPerson>>(dictionary);
 			container.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreSame(container.Item, s);
-				Assert.IsInstanceOf<IPerson>(s);
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreSame(container.Item, s);
+					Assert.IsInstanceOf<IPerson>(s);
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			container.Item.Name = "Craig";
@@ -846,8 +858,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			using (person.SupressNotificationsSection())
@@ -864,8 +879,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			using (person.SupressNotificationsSection())
@@ -885,8 +903,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPersonWithDeniedInheritancePrefix>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (!notifyCalled)
+				{
+					notifyCalled = true;
+					Assert.AreEqual("Name", e.PropertyName);
+				}
 			};
 
 			person.Max_Width = 10;
@@ -965,8 +986,8 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (e.PropertyName == "Name")
+					notifyCalled = true;
 			};
 			person.BeginEdit();
 			person.Name = "Craig";
@@ -982,8 +1003,8 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			person.BillingAddress.Line1 = "77 Nutmeg Dr.";
 			person.BillingAddress.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Line1", e.PropertyName);
+				if (e.PropertyName == "Line1")
+					notifyCalled = true;
 			};
 			person.BeginEdit();
 			person.BillingAddress.Line1 = "600 Tulip Ln.";
@@ -1071,8 +1092,8 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Name", e.PropertyName);
+				if (e.PropertyName == "Name")
+					notifyCalled = true;
 			};
 			person.BeginEdit();
 			person.Name = "Craig";
@@ -1088,8 +1109,8 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			person.BillingAddress.Line1 = "77 Nutmeg Dr.";
 			person.BillingAddress.PropertyChanged += (s, e) =>
 			{
-				notifyCalled = true;
-				Assert.AreEqual("Line1", e.PropertyName);
+				if (e.PropertyName == "Line1")
+					notifyCalled = true;
 			};
 			person.BeginEdit();
 			person.BillingAddress.Line1 = "600 Tulip Ln.";
