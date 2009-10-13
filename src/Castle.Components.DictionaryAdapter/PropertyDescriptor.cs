@@ -28,13 +28,14 @@ namespace Castle.Components.DictionaryAdapter
 	                                  IDictionaryPropertyGetter,
 	                                  IDictionaryPropertySetter
 	{
-		private readonly PropertyInfo property;
 		private readonly bool isDynamicProperty;
 		private List<IDictionaryPropertyGetter> getters;
 		private List<IDictionaryPropertySetter> setters;
 		private List<IDictionaryKeyBuilder> keyBuilders;
 		private TypeConverter typeConverter;
 		private HybridDictionary state;
+
+		private static readonly object[] NoBehaviors = new object[0];
 
 		/// <summary>
 		/// Initializes an empty <see cref="PropertyDescriptor"/> class.
@@ -47,9 +48,11 @@ namespace Castle.Components.DictionaryAdapter
 		/// Initializes a new instance of the <see cref="PropertyDescriptor"/> class.
 		/// </summary>
 		/// <param name="property">The property.</param>
-		public PropertyDescriptor(PropertyInfo property) : this()
+		/// <param name="behaviors">The property behaviors.</param>
+		public PropertyDescriptor(PropertyInfo property, object[] behaviors) : this()
 		{
-			this.property = property;
+			Property = property;
+			Behaviors = behaviors ?? NoBehaviors;
 			isDynamicProperty = typeof(IDynamicValue).IsAssignableFrom(property.PropertyType);
 		}
 
@@ -81,10 +84,7 @@ namespace Castle.Components.DictionaryAdapter
 		/// Gets the property.
 		/// </summary>
 		/// <value>The property.</value>
-		public PropertyInfo Property
-		{
-			get { return property; }
-		}
+		public PropertyInfo Property { get; private set; }
 
 		/// <summary>
 		/// Returns true if the property is dynamic.
@@ -113,6 +113,11 @@ namespace Castle.Components.DictionaryAdapter
 		public bool SuppressNotifications { get; set; }
 
 		/// <summary>
+		/// Gets the property behaviors.
+		/// </summary>
+		public object[] Behaviors { get; private set; }
+
+		/// <summary>
 		/// Gets the type converter.
 		/// </summary>
 		/// <value>The type converter.</value>
@@ -122,7 +127,7 @@ namespace Castle.Components.DictionaryAdapter
 			{
 				if (typeConverter == null)
 				{
-					var converterType = AttributesUtil.GetTypeConverter(property);
+					var converterType = AttributesUtil.GetTypeConverter(Property);
 
 					if (converterType != null)
 					{

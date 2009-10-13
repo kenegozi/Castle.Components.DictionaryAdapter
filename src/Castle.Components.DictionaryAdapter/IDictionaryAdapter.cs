@@ -29,6 +29,10 @@ namespace Castle.Components.DictionaryAdapter
 
 		IDictionary Dictionary { get; }
 
+		IDictionaryInitializer[] Initializers { get; }
+
+		object[] Behaviors { get; }
+
 		PropertyDescriptor Descriptor { get; }
 
 		IDictionary<String, PropertyDescriptor> Properties { get; }

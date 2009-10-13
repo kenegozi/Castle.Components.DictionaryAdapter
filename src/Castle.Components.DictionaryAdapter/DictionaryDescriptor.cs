@@ -25,8 +25,8 @@ namespace Castle.Components.DictionaryAdapter
 		{
 		}
 
-		public DictionaryDescriptor(PropertyInfo property)
-			: base(property)
+		public DictionaryDescriptor(PropertyInfo property, object[] behaviors)
+			: base(property, behaviors)
 		{
 		}
 

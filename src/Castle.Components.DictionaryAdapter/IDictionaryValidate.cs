@@ -14,7 +14,7 @@
 
 namespace Castle.Components.DictionaryAdapter
 {
-	using System;
+	using System.Collections.Generic;
 	using System.ComponentModel;
 
 	/// <summary>
@@ -26,6 +26,8 @@ namespace Castle.Components.DictionaryAdapter
 
 		bool IsValid { get; }
 
-		IDictionaryValidator Validator { get; set; }
+		IEnumerable<IDictionaryValidator> Validators { get; }
+
+		void AddValidator(IDictionaryValidator validator);
 	}
 }

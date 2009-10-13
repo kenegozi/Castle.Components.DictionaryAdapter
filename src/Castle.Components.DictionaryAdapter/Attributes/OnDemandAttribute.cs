@@ -18,6 +18,7 @@ namespace Castle.Components.DictionaryAdapter
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.ComponentModel;
+	using System.Reflection;
 	using System.Linq;
 
 	/// <summary>
@@ -84,12 +85,12 @@ namespace Castle.Components.DictionaryAdapter
 						else
 						{
 							object[] args = null;
+							ConstructorInfo constructor = null;
 
 							if (property.IsDynamicProperty)
 							{
-								var constructor =
-									(from ctor in property.PropertyType.GetConstructors()
-									 let parms = ctor.GetParameters()
+								constructor = (from ctor in type.GetConstructors()
+									let parms = ctor.GetParameters()
 									 where parms.Length == 1 && 
 										parms[0].ParameterType.IsAssignableFrom(dictionaryAdapter.Type)
 									 select ctor).FirstOrDefault();
@@ -97,13 +98,14 @@ namespace Castle.Components.DictionaryAdapter
 								if (constructor != null) args = new[] { dictionaryAdapter };
 							}
 
-							if (args != null)
+							if (constructor == null)
 							{
-								storedValue = Activator.CreateInstance(type, args);
+								constructor = type.GetConstructor(Type.EmptyTypes);
 							}
-							else
+
+							if (constructor != null)
 							{
-								storedValue = Activator.CreateInstance(type);
+								storedValue = constructor.Invoke(args);
 							}
 						}
 					}

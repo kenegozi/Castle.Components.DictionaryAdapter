@@ -15,20 +15,22 @@
 namespace Castle.Components.DictionaryAdapter
 {
 	using System;
+	using System.Collections.Generic;
+	using System.Linq;
 
 	public partial class DictionaryAdapterBase : IDictionaryValidate
 	{
-		public bool CanValidate { get; set; }
+		private HashSet<IDictionaryValidator> validators;
 
-		public IDictionaryValidator Validator { get; set; }
+		public bool CanValidate { get; set; }
 
 		public bool IsValid
 		{
 			get 
 			{
-				if (CanValidate && Validator != null)
+				if (CanValidate && validators != null)
 				{
-					return Validator.IsValid(this);
+					return !validators.Any(v => !v.IsValid(this));
 				}
 				return !CanValidate;
 			}
@@ -38,9 +40,10 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			get
 			{
-				if (CanValidate && Validator != null)
+				if (CanValidate && validators != null)
 				{
-					return Validator.Validate(this);
+					return string.Join(Environment.NewLine, validators.Select(
+						v => v.Validate(this)).Where(e => !string.IsNullOrEmpty(e)).ToArray());
 				}
 				return String.Empty;
 			}
@@ -50,12 +53,33 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			get
 			{
-				if (CanValidate && Validator != null)
+				if (CanValidate && validators != null)
 				{
-					return Validator.Validate(this, columnName);
+					PropertyDescriptor property;
+					if (Properties.TryGetValue(columnName, out property))
+					{
+						return string.Join(Environment.NewLine, validators.Select(
+							v => v.Validate(this, property)).Where(e => !string.IsNullOrEmpty(e))
+							.ToArray());
+					}
 				}
 				return String.Empty;
 			}
+		}
+
+		public IEnumerable<IDictionaryValidator> Validators
+		{
+			get
+			{
+				return validators ?? Enumerable.Empty<IDictionaryValidator>();
+			}
+		}
+        
+		public void AddValidator(IDictionaryValidator validator)
+		{
+			if (validators == null)
+				validators = new HashSet<IDictionaryValidator>();
+			validators.Add(validator);
 		}
 
 		protected internal void NotifyIsValidChanged()

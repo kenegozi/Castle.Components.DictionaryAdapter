@@ -403,8 +403,8 @@ namespace Castle.Components.DictionaryAdapter
 
 			RecursivelyDiscoverProperties(type, property =>
 			{
-				var propertyDescriptor = new PropertyDescriptor(property);
 				var propertyBehaviors = GetPropertyBehaviors<object>(property).ToArray();
+				var propertyDescriptor = new PropertyDescriptor(property, propertyBehaviors);
 
 				var descriptorInitializers = GetOrderedBehaviors<IPropertyDescriptorInitializer>(propertyBehaviors);
 				foreach (var descriptorInitializer in descriptorInitializers)

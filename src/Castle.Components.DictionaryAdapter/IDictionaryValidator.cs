@@ -37,8 +37,8 @@ namespace Castle.Components.DictionaryAdapter
 		/// Validates the <see cref="IDictionaryAdapter"/> for a property.
 		/// </summary>
 		/// <param name="dictionaryAdapter">The dictionary adapter.</param>
-		/// <param name="propertyName">The property to validate.</param>
+		/// <param name="property">The property to validate.</param>
 		/// <returns>The property summary information.</returns>
-		string Validate(IDictionaryAdapter dictionaryAdapter, string propertyName);
+		string Validate(IDictionaryAdapter dictionaryAdapter, PropertyDescriptor property);
 	}
 }

@@ -34,7 +34,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 	{
 		void IDictionaryInitializer.Initialize(IDictionaryAdapter dictionaryAdapter, object[] behaviors)
 		{
-			dictionaryAdapter.Validator = this;
+			dictionaryAdapter.AddValidator(this);
 		}
 
 		public bool IsValid(IDictionaryAdapter dictionaryAdapter)
@@ -58,19 +58,15 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			return String.Join(Environment.NewLine, errors.ToArray());
 		}
 
-		public string Validate(IDictionaryAdapter dictionaryAdapter, string propertyName)
+		public string Validate(IDictionaryAdapter dictionaryAdapter, PropertyDescriptor property)
 		{
 			List<String> errors = new List<string>();
 			var globalRules = AttributesUtil.GetTypeAttributes<IValidationRule>(dictionaryAdapter.Type);
 
-			PropertyDescriptor property;
-			if (dictionaryAdapter.Properties.TryGetValue(propertyName, out property))
-			{
-				var propertyRules = AttributesUtil.GetAttributes<IValidationRule>(property.Property);
-				var propertyValue = dictionaryAdapter.GetProperty(property.PropertyName);
-				ApplyValidationRules(dictionaryAdapter, propertyRules, property, propertyValue, errors);
-				ApplyValidationRules(dictionaryAdapter, globalRules, property, propertyValue, errors);
-			}
+			var propertyRules = AttributesUtil.GetAttributes<IValidationRule>(property.Property);
+			var propertyValue = dictionaryAdapter.GetProperty(property.PropertyName);
+			ApplyValidationRules(dictionaryAdapter, propertyRules, property, propertyValue, errors);
+			ApplyValidationRules(dictionaryAdapter, globalRules, property, propertyValue, errors);
 
 			return String.Join(Environment.NewLine, errors.ToArray());
 		}

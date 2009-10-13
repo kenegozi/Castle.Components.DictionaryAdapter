@@ -1179,8 +1179,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		public void CanInitializeTheDictionaryAdapterWithAttributes()
 		{
 			var name = factory.GetAdapter<IMutableName>(dictionary);
-			var validator = ((IDictionaryAdapter)name).Validator as TestDictionaryValidator;
-			Assert.IsNotNull(validator);
+			Assert.IsTrue(((IDictionaryAdapter)name).Validators.OfType<TestDictionaryValidator>().Any());
 		}
 
 		[Test]
@@ -1267,6 +1266,13 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var container = factory.GetAdapter<IItemContainer<IPerson>>(dictionary);
 			var person = container.Bindingtems.AddNew();
 			Assert.IsNotNull(person);
+		}
+
+		[Test]
+		public void WillNotCreateObjectOnDemandWithoutDefaultConstructor()
+		{
+			var container = factory.GetAdapter<IItemContainer<IPerson>>(dictionary);
+			Assert.IsNull(container.EmailAddress);
 		}
 
 		[Test]
@@ -1534,6 +1540,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 
 		Address Address { get; set; }
 
+		Uri EmailAddress { get; set; }
 		IPhone Phone { get; set; }
 
 		int[] Positions { get; set; }
