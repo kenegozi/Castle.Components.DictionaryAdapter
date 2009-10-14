@@ -19,6 +19,7 @@ namespace Castle.Components.DictionaryAdapter
 	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.ComponentModel;
+	using System.Linq;
 
 	public abstract partial class DictionaryAdapterBase : IDictionaryAdapter
 	{
@@ -127,19 +128,16 @@ namespace Castle.Components.DictionaryAdapter
 			return stored;
 		}
 
-		public void FetchProperties()
-		{
-			foreach (var propertyName in Properties.Keys)
-			{
-				GetProperty(propertyName);
-			}
-		}
-
 		protected void Initialize()
 		{
 			foreach (var initializer in Initializers)
 			{
 				initializer.Initialize(this, Behaviors);
+			}
+
+			foreach (var property in Properties.Values.Where(p => p.Fetch))
+			{
+				GetProperty(property.PropertyName);
 			}
 		}
 	}

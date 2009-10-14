@@ -108,6 +108,11 @@ namespace Castle.Components.DictionaryAdapter
 		}
 
 		/// <summary>
+		/// Determines if property should be fetched.
+		/// </summary>
+		public bool Fetch { get; set; }
+
+		/// <summary>
 		/// Determines if notifications should occur.
 		/// </summary>
 		public bool SuppressNotifications { get; set; }

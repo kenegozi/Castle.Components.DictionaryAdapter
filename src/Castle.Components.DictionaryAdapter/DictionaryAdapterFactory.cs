@@ -401,6 +401,8 @@ namespace Castle.Components.DictionaryAdapter
 			var typeGetters = GetOrderedBehaviors<IDictionaryPropertyGetter>(typeBehaviors);
 			var typeSetters = GetOrderedBehaviors<IDictionaryPropertySetter>(typeBehaviors);
 
+			var defaultFetch = (from b in typeBehaviors.OfType<FetchAttribute>() select b.Fetch).FirstOrDefault();
+
 			RecursivelyDiscoverProperties(type, property =>
 			{
 				var propertyBehaviors = GetPropertyBehaviors<object>(property).ToArray();
@@ -422,6 +424,9 @@ namespace Castle.Components.DictionaryAdapter
 
 				propertyDescriptor.AddSetters(GetOrderedBehaviors<IDictionaryPropertySetter>(propertyBehaviors));
 				propertyDescriptor.AddSetters(typeSetters);
+
+				bool? propertyFetch = (from b in propertyBehaviors.OfType<FetchAttribute>() select b.Fetch).FirstOrDefault();
+				propertyDescriptor.Fetch = propertyFetch.GetValueOrDefault(defaultFetch);
 
 				PropertyDescriptor existingDescriptor;
 				if (propertyMap.TryGetValue(property.Name, out existingDescriptor))

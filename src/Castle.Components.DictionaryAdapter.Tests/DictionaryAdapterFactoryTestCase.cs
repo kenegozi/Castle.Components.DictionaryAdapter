@@ -702,19 +702,16 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		}
 
 		[Test]
-		public void CanFetchPropertiesUsingDictionaryAdapterMeta()
+		public void CanFetchProperties()
 		{
 			var getter = new CustomGetter();
 			var custom = new DictionaryDescriptor().AddGetter(getter);
 			var meta = factory.GetAdapter(typeof(IPhone), dictionary, custom) as IDictionaryAdapter;
 
-			Assert.AreEqual(0, getter.PropertiesFetched.Count);
+			Assert.AreEqual(1, getter.PropertiesFetched.Count);
 
-			meta.FetchProperties();
-
-			Assert.AreEqual(2, getter.PropertiesFetched.Count);
+			Assert.AreEqual(1, getter.PropertiesFetched.Count);
 			Assert.IsTrue(getter.PropertiesFetched.Contains("Number"));
-			Assert.IsTrue(getter.PropertiesFetched.Contains("Extension"));
 		}
 
 		[Test]
@@ -1341,7 +1338,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 
 	public interface IPhone : IEditableObject, INotifyPropertyChanged, IDataErrorInfo
 	{
-		string Number { get; set; }
+		[Fetch]string Number { get; set; }
 		string Extension { get; set; }
 	}
 

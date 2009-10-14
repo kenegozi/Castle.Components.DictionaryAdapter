@@ -44,7 +44,5 @@ namespace Castle.Components.DictionaryAdapter
 		T GetPropertyOfType<T>(string propertyName);
 
 		bool SetProperty(string propertyName, ref object value);
-
-		void FetchProperties();
 	}
 }
