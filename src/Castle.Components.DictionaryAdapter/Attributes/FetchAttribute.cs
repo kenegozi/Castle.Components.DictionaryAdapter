@@ -16,6 +16,9 @@ namespace Castle.Components.DictionaryAdapter
 {
 	using System;
 
+	/// <summary>
+	/// Identifies an interface or property to be pre-feteched.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = false)]
 	public class FetchAttribute : Attribute
 	{

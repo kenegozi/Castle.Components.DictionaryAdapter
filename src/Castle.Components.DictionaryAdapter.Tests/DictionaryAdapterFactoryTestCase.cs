@@ -1186,7 +1186,63 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			name.FirstName = "Big";
 			name.LastName = "Tex";
 
-			Assert.AreEqual("Property FirstName must be at least 10 characters long", name.Error);
+			Assert.IsFalse(name.IsValid);
+			Assert.AreEqual("Property FirstName must be at least 10 characters long\r\n" +
+							"Property LastName must be at least 15 characters long", name.Error);
+		}
+
+		[Test]
+		public void CanValidateGroupAndObtainDataErrorInformation()
+		{
+			var name = factory.GetAdapter<IMutableName>(dictionary);
+			name.FirstName = "Big";
+			name.LastName = "Tex";
+
+			var groupA = name.ValidateGroups("A");
+			Assert.IsFalse(groupA.IsValid);
+			var groupB = name.ValidateGroups("B");
+			Assert.IsFalse(groupB.IsValid);
+			var groupC = name.ValidateGroups("C");
+			Assert.IsTrue(groupC.IsValid);
+
+			Assert.AreEqual("Property FirstName must be at least 10 characters long", groupA.Error);
+			Assert.AreEqual("Property LastName must be at least 15 characters long", groupB.Error);
+		}
+
+		[Test]
+		public void CanChainValidateGroupAndObtainDataErrorInformation()
+		{
+			var name = factory.GetAdapter<IMutableName>(dictionary);
+			name.FirstName = "Big";
+			name.LastName = "Tex";
+
+			var groupA = name.ValidateGroups("A");
+			var groupAandB = groupA.ValidateGroups("B");
+
+			Assert.IsFalse(groupAandB.IsValid);
+			Assert.AreEqual("Property FirstName must be at least 10 characters long\r\n" +
+							"Property LastName must be at least 15 characters long", groupAandB.Error);
+		}
+
+		[Test]
+		public void WillNotifyPropertyChangesOnValidateGroup()
+		{
+			bool notifyCalled = false;
+			var name = factory.GetAdapter<IMutableName>(dictionary);
+			name.FirstName = "Big";
+			name.LastName = "Tex";
+
+			var groupA = name.ValidateGroups("A");
+			groupA.PropertyChanged += (s, e) =>
+			{
+				if (e.PropertyName == "IsValid")
+				{
+					notifyCalled = true;
+				}
+			};
+
+			name.LastName = "Monster";
+			Assert.IsTrue(notifyCalled);
 		}
 
 		[Test]
@@ -1318,7 +1374,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 	}
 
 	[TestDictionaryValidator]
-	public interface IName : IDictionaryNotify, IDictionaryCreate, IDataErrorInfo
+	public interface IName : IDictionaryNotify, IDictionaryCreate, IDictionaryValidate
 	{
 		string FirstName { get; }
 		string LastName { get; }
@@ -1332,8 +1388,10 @@ namespace Castle.Components.DictionaryAdapter.Tests
 	public interface IMutableName : IName, IEditableObject
 	{
 		[ValidateStringLengthAtLeast(10)]
-		new string FirstName { get; set; }
-		new string LastName { get; set; }
+		[Group("A")]new string FirstName { get; set; }
+
+		[ValidateStringLengthAtLeast(15)]
+		[Group("B")]new string LastName { get; set; }
 	}
 
 	public interface IPhone : IEditableObject, INotifyPropertyChanged, IDataErrorInfo

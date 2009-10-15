@@ -14,22 +14,26 @@
 
 namespace Castle.Components.DictionaryAdapter
 {
-	using System.Collections.Generic;
-	using System.ComponentModel;
+	using System;
 
 	/// <summary>
-	/// Contract for validating Dictionary adapter.
+	/// Assigns a property to a group.
 	/// </summary>
-	public interface IDictionaryValidate : IDataErrorInfo, INotifyPropertyChanged
+	[AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+	public class GroupAttribute : Attribute
 	{
-		bool CanValidate { get; set; }
+		/// <summary>
+		/// Constructs a group assignment.
+		/// </summary>
+		/// <param name="group">The group name.</param>
+		public GroupAttribute(String group)
+		{
+			Group = group;
+		}
 
-		bool IsValid { get; }
-
-		IDictionaryValidate ValidateGroups(params string[] groups);
-
-		IEnumerable<IDictionaryValidator> Validators { get; }
-
-		void AddValidator(IDictionaryValidator validator);
+		/// <summary>
+		/// Gets the group the property is assigned to.
+		/// </summary>
+		public String Group { get; private set; }
 	}
 }

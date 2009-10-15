@@ -63,6 +63,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AbstractDictionaryAdapter.cs" />
     <Compile Include="Attributes\AttributesUtil.cs" />
+    <Compile Include="Attributes\GroupAttribute.cs" />
     <Compile Include="Attributes\FetchAttribute.cs" />
     <Compile Include="Attributes\MultiLevelEditAttribute.cs" />
     <Compile Include="Attributes\DictionaryAdapterAttribute.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Attributes\StringValuesAttribute.cs" />
     <Compile Include="CascadingDictionaryAdapter.cs" />
     <Compile Include="DictionaryDescriptor.cs" />
+    <Compile Include="DictionaryValidateGroup.cs" />
     <Compile Include="Util\DynamicValue.cs" />
     <Compile Include="Util\DynamicValueDelegate.cs" />
     <Compile Include="Util\EditableBindingList.cs" />
