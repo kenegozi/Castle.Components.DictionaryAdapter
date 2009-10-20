@@ -21,7 +21,7 @@ namespace Castle.Components.DictionaryAdapter
 
 	public abstract partial class DictionaryAdapterBase
 	{
-		private int supressNotificationCount = 0;
+		private int suppressNotificationCount = 0;
 		private bool propagateChildNotifications = true;
 		private Dictionary<object, object> composedChildNotifications;
 
@@ -35,7 +35,7 @@ namespace Castle.Components.DictionaryAdapter
 
 		public bool ShouldNotify
 		{
-			get { return CanNotify && supressNotificationCount == 0; }
+			get { return CanNotify && suppressNotificationCount == 0; }
 		}
 
 		public bool PropagateChildNotifications
@@ -44,19 +44,19 @@ namespace Castle.Components.DictionaryAdapter
 			set { propagateChildNotifications = value; }
 		}
         
-		public IDisposable SupressNotificationsSection()
+		public IDisposable SuppressNotificationsBlock()
 		{
-			return new SupressNotificationsScope(this);
+			return new SuppressNotificationsScope(this);
 		}
 
-		public void SupressNotifications()
+		public void SuppressNotifications()
 		{
-			++supressNotificationCount;
+			++suppressNotificationCount;
 		}
 
 		public void ResumeNotifications()
 		{
-			--supressNotificationCount;
+			--suppressNotificationCount;
 		}
         
 		protected bool NotifyPropertyChanging(PropertyDescriptor property, object oldValue, object newValue)
@@ -92,11 +92,14 @@ namespace Castle.Components.DictionaryAdapter
 
 		protected void NotifyPropertyChanged(string propertyName)
 		{
-			var propertyChanged = PropertyChanged;
-
-			if (propertyChanged != null)
+			if (ShouldNotify)
 			{
-				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+				var propertyChanged = PropertyChanged;
+
+				if (propertyChanged != null)
+				{
+					propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+				}
 			}
 		}
 
@@ -214,16 +217,16 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		#region Nested Class: SupressNotificationsScope
+		#region Nested Class: SuppressNotificationsScope
 
-		class SupressNotificationsScope : IDisposable
+		class SuppressNotificationsScope : IDisposable
 		{
 			private readonly DictionaryAdapterBase adapter;
 
-			public SupressNotificationsScope(DictionaryAdapterBase adapter)
+			public SuppressNotificationsScope(DictionaryAdapterBase adapter)
 			{
 				this.adapter = adapter;
-				this.adapter.SupressNotifications();
+				this.adapter.SuppressNotifications();
 			}
 
 			public void Dispose()
@@ -288,7 +291,7 @@ namespace Castle.Components.DictionaryAdapter
 					var currentValue = GetEffectivePropertyValue(descriptor);
 					changed |= NotifyIfChanged(descriptor, readonlyProperty.Value, currentValue);
 				}
-				adapter.NotifyIsValidChanged();
+				adapter.Invalidate();
 				return changed;
 			}
 

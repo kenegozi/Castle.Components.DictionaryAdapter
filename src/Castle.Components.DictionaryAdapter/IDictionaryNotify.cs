@@ -64,9 +64,9 @@ namespace Castle.Components.DictionaryAdapter
 
 		bool PropagateChildNotifications { get; set; }
 
-		IDisposable SupressNotificationsSection();
+		IDisposable SuppressNotificationsBlock();
 
-		void SupressNotifications();
+		void SuppressNotifications();
 
 		void ResumeNotifications();
 

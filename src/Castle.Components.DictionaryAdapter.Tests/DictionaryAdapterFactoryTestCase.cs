@@ -849,7 +849,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		}
 
 		[Test]
-		public void CanSupressAllPropertyChangedEvents()
+		public void CanSuppressAllPropertyChangedEvents()
 		{
 			var notifyCalled = false;
 			var person = factory.GetAdapter<IPerson>(dictionary);
@@ -862,7 +862,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 				}
 			};
 
-			using (person.SupressNotificationsSection())
+			using (person.SuppressNotificationsBlock())
             {
 				person.Name = "Craig";            	
             }
@@ -883,7 +883,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 				}
 			};
 
-			using (person.SupressNotificationsSection())
+			using (person.SuppressNotificationsBlock())
 			{
 				person.Name = "Craig";
 			}
@@ -894,7 +894,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		}
 
 		[Test]
-		public void CanSupressPropertyChangedEventsForSingleProperty()
+		public void CanSuppressPropertyChangedEventsForSingleProperty()
 		{
 			var notifyCalled = false;
 			var person = factory.GetAdapter<IPersonWithDeniedInheritancePrefix>(dictionary);

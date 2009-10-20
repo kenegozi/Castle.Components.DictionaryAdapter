@@ -14,25 +14,26 @@
 
 namespace Castle.Components.DictionaryAdapter
 {
+	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.Linq;
 
 	public abstract partial class DictionaryAdapterBase
 	{
-		private bool suppressEditing;
+		private int suppressEditingCount = 0;
 		private Stack<Dictionary<string, object>> updates;
 		private HashSet<IEditableObject> editDependencies;
 
 		public bool CanEdit
 		{
-			get { return !suppressEditing && updates != null; }
+			get { return suppressEditingCount == 0 && updates != null; }
 			set { updates = value ? new Stack<Dictionary<string, object>>() : null; }
 		}
 
 		public bool IsEditing
 		{
-			get { return CanEdit && updates.Count > 0; }
+			get { return updates != null && updates.Count > 0; }
 		}
 
 		public bool SupportsMultiLevelEdit { get; set; }
@@ -67,6 +68,8 @@ namespace Castle.Components.DictionaryAdapter
 				}
 
 				updates.Pop();
+
+				Invalidate();
 			}
 		}
 
@@ -74,10 +77,8 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			if (IsEditing)
 			{
-				suppressEditing = true;
-
-				try
-				{
+				using (SuppressEditingBlock())
+                {
 					var top = updates.Pop();
 
 					if (top.Count > 0)
@@ -101,11 +102,22 @@ namespace Castle.Components.DictionaryAdapter
 						editDependencies.Clear();
 					}
 				}
-				finally
-				{
-					suppressEditing = false;
-				}
 			}
+		}
+
+		public IDisposable SuppressEditingBlock()
+		{
+			return new SuppressEditingScope(this);
+		}
+
+		public void SuppressEditing()
+		{
+			++suppressEditingCount;
+		}
+
+		public void ResumeEditing()
+		{
+			--suppressEditingCount;
 		}
 
 		protected bool GetEditedProperty(string propertyName, out object propertyValue)
@@ -126,7 +138,7 @@ namespace Castle.Components.DictionaryAdapter
 			if (IsEditing)
 			{
 				updates.Peek()[propertyName] = propertyValue;
-				NotifyIsValidChanged();
+				Invalidate();
 				return true;
 			}
 			return false;
@@ -144,5 +156,25 @@ namespace Castle.Components.DictionaryAdapter
 				}
 			}
 		}
+
+		#region Nested Class: SuppressEditingScope
+
+		class SuppressEditingScope : IDisposable
+		{
+			private readonly DictionaryAdapterBase adapter;
+
+			public SuppressEditingScope(DictionaryAdapterBase adapter)
+			{
+				this.adapter = adapter;
+				this.adapter.SuppressEditing();
+			}
+
+			public void Dispose()
+			{
+				this.adapter.ResumeEditing();
+			}
+		}
+
+		#endregion
 	}
 }

@@ -71,6 +71,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			return String.Join(Environment.NewLine, errors.ToArray());
 		}
 
+		public void Invalidate(IDictionaryAdapter dictionaryAdapter)
+		{
+			
+		}
+        
 		private void ApplyValidationRules(IDictionaryAdapter dictionaryAdapter, IEnumerable<IValidationRule> rules,
 										  PropertyDescriptor property, object propertyValue, IList<String> errors)
 		{

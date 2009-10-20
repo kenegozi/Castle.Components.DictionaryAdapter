@@ -113,7 +113,7 @@ namespace Castle.Components.DictionaryAdapter
 
 				if (storedValue != null)
 				{
-					using (dictionaryAdapter.SupressNotificationsSection())
+					using (dictionaryAdapter.SuppressNotificationsBlock())
                     {
 						if (storedValue is ISupportInitialize)
 						{

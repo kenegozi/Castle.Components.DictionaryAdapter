@@ -87,10 +87,15 @@ namespace Castle.Components.DictionaryAdapter
 			validators.Add(validator);
 		}
 
-		protected internal void NotifyIsValidChanged()
+		protected internal void Invalidate()
 		{
-			if (CanValidate && ShouldNotify)
+			if (CanValidate)
 			{
+				if (validators != null) foreach (var validator in validators)
+				{
+					validator.Invalidate(this);
+				}
+
 				NotifyPropertyChanged("IsValid");
 			}
 		}

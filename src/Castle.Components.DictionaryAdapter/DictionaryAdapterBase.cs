@@ -106,7 +106,9 @@ namespace Castle.Components.DictionaryAdapter
 
 				if (!ShouldNotify)
 				{
-					return descriptor.SetPropertyValue(this, propertyName, ref value, Descriptor);
+					stored = descriptor.SetPropertyValue(this, propertyName, ref value, Descriptor);
+					Invalidate();
+					return stored;
 				}
 
 				var existingValue = GetProperty(propertyName);

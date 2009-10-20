@@ -14,6 +14,7 @@
 
 namespace Castle.Components.DictionaryAdapter
 {
+	using System;
 	using System.ComponentModel;
 
 	/// <summary>
@@ -28,5 +29,11 @@ namespace Castle.Components.DictionaryAdapter
 		bool IsDirty { get; }
 
 		bool SupportsMultiLevelEdit { get; set; }
+
+		IDisposable SuppressEditingBlock();
+
+		void SuppressEditing();
+
+		void ResumeEditing();
 	}
 }

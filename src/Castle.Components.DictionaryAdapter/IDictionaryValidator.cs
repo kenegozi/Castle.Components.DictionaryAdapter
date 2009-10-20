@@ -40,5 +40,11 @@ namespace Castle.Components.DictionaryAdapter
 		/// <param name="property">The property to validate.</param>
 		/// <returns>The property summary information.</returns>
 		string Validate(IDictionaryAdapter dictionaryAdapter, PropertyDescriptor property);
+
+		/// <summary>
+		/// Invalidates any results cached by the validator.
+		/// </summary>
+		/// <param name="dictionaryAdapter">The dictionary adapter.</param>
+		void Invalidate(IDictionaryAdapter dictionaryAdapter);
 	}
 }
