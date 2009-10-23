@@ -1187,7 +1187,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			name.LastName = "Tex";
 
 			Assert.IsFalse(name.IsValid);
-			Assert.AreEqual("Property FirstName must be at least 10 characters long\r\n" +
+			Assert.AreEqual("Property FirstName must be at least 10 characters long" + Environment.NewLine +
 							"Property LastName must be at least 15 characters long", name.Error);
 		}
 
@@ -1220,7 +1220,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var groupAandB = groupA.ValidateGroups("B");
 
 			Assert.IsFalse(groupAandB.IsValid);
-			Assert.AreEqual("Property FirstName must be at least 10 characters long\r\n" +
+			Assert.AreEqual("Property FirstName must be at least 10 characters long" + Environment.NewLine +
 							"Property LastName must be at least 15 characters long", groupAandB.Error);
 		}
 
