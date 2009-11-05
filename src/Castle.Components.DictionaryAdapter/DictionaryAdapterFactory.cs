@@ -488,7 +488,7 @@ namespace Castle.Components.DictionaryAdapter
 		private static readonly Type[] IgnoredTypes = new[] 
 			{
 				typeof(IEditableObject), typeof(IDictionaryEdit), typeof(IDictionaryNotify), 
-				typeof(IDataErrorInfo), typeof(IDictionaryValidate)
+				typeof(IDataErrorInfo), typeof(IDictionaryValidate), typeof(IDictionaryAdapter)
 			};
 
 		private static void AddDefaultGetter(PropertyDescriptor descriptor)
@@ -598,27 +598,6 @@ namespace Castle.Components.DictionaryAdapter
 		#endregion
 
 		#region Reflection Cache
-
-		private static readonly MethodInfo DictionaryGetItem =
-			typeof(IDictionary).GetMethod("get_Item", new[] {typeof(Object)});
-
-		private static readonly MethodInfo DictionarySetItem =
-			typeof(IDictionary).GetMethod("set_Item", new[] {typeof(Object), typeof(Object)});
-
-		private static readonly MethodInfo PropertyMapGetItem =
-			typeof(Dictionary<String, object[]>).GetMethod("get_Item", new[] {typeof(String)});
-
-		private static readonly MethodInfo DescriptorGetKey =
-			typeof(PropertyDescriptor).GetMethod("GetKey");
-
-		private static readonly MethodInfo DescriptorGetValue =
-			typeof(PropertyDescriptor).GetMethod("GetPropertyValue");
-
-		private static readonly MethodInfo DescriptorSetValue =
-			typeof(PropertyDescriptor).GetMethod("SetPropertyValue");
-
-		private static readonly PropertyInfo MetaDictionaryProp =
-			typeof(IDictionaryAdapter).GetProperty("Dictionary");
 
 		private static readonly PropertyInfo MetaPropertiesProp =
 			typeof(IDictionaryAdapter).GetProperty("Properties");
