@@ -473,23 +473,15 @@ namespace Castle.Components.DictionaryAdapter
 
 			foreach (Type type in types)
 			{
-				if (Array.IndexOf(IgnoredTypes, type) >= 0)
+				if (!InfrastructureTypes.Contains(type))
 				{
-					continue;
-				}
-
-				foreach (var property in type.GetProperties(publicBindings))
-				{
-					onProperty(property);
+					foreach (var property in type.GetProperties(publicBindings))
+					{
+						onProperty(property);
+					}
 				}
 			}
 		}
-
-		private static readonly Type[] IgnoredTypes = new[] 
-			{
-				typeof(IEditableObject), typeof(IDictionaryEdit), typeof(IDictionaryNotify), 
-				typeof(IDataErrorInfo), typeof(IDictionaryValidate), typeof(IDictionaryAdapter)
-			};
 
 		private static void AddDefaultGetter(PropertyDescriptor descriptor)
 		{
@@ -498,6 +490,13 @@ namespace Castle.Components.DictionaryAdapter
 				descriptor.AddGetter(new DefaultPropertyGetter(descriptor.TypeConverter));
 			}
 		}
+
+		private static readonly HashSet<Type> InfrastructureTypes = new HashSet<Type>()
+		{
+			typeof(IEditableObject), typeof(IDictionaryEdit), typeof(IChangeTracking),
+			typeof(IRevertibleChangeTracking), typeof(IDictionaryNotify), typeof(IDataErrorInfo), 
+			typeof(IDictionaryValidate), typeof(IDictionaryAdapter)
+		};
 
 		#endregion
 

@@ -17,10 +17,34 @@ namespace Castle.Components.DictionaryAdapter
 	using System.Collections.Generic;
 	using System.ComponentModel;
 
-	public class EditableBindingList<T> : BindingList<T>, IEditableObject
+	public class EditableBindingList<T> : BindingList<T>, IEditableObject, IRevertibleChangeTracking
 	{
 		private bool isEditing;
 		private List<T> snapshot;
+
+		public bool IsChanged
+		{
+			get
+			{
+				if (snapshot == null || snapshot.Count != Count)
+					return false;
+
+				var items = GetEnumerator();
+				var snapshotItems = snapshot.GetEnumerator();
+
+				while (items.MoveNext() && snapshotItems.MoveNext())
+				{
+					if (ReferenceEquals(items.Current, snapshotItems.Current) == false)
+						return false;
+
+					var tracked = items.Current as IChangeTracking;
+					if (tracked != null && tracked.IsChanged)
+						return true;
+				}
+
+				return false;
+			}
+		}
 
 		public void BeginEdit()
 		{
@@ -46,6 +70,16 @@ namespace Castle.Components.DictionaryAdapter
 				snapshot = null;
 				isEditing = false;
 			}
+		}
+
+		public void AcceptChanges()
+		{
+			BeginEdit();
+		}
+
+		public void RejectChanges()
+		{
+			CancelEdit();
 		}
 	}
 }

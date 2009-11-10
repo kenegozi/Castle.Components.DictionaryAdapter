@@ -20,13 +20,11 @@ namespace Castle.Components.DictionaryAdapter
 	/// <summary>
 	/// Contract for editing the Dictionary adapter.
 	/// </summary>
-	public interface IDictionaryEdit : IEditableObject
+	public interface IDictionaryEdit : IEditableObject, IRevertibleChangeTracking
 	{
 		bool CanEdit { get; }
 
 		bool IsEditing { get; }
-
-		bool IsDirty { get; }
 
 		bool SupportsMultiLevelEdit { get; set; }
 

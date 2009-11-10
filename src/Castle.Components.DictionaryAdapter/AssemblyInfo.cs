@@ -20,8 +20,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompanyAttribute("Castle Project")]
 [assembly: AssemblyProductAttribute("Castle.Components.DictionaryAdapter")]
 [assembly: AssemblyCopyrightAttribute("Castle Project, original author or authors")]
-[assembly: AssemblyVersionAttribute("1.0.3.0")]
-[assembly: AssemblyInformationalVersionAttribute("1.0.3.6198")]
-[assembly: AssemblyFileVersionAttribute("1.0.3.6198")]
+[assembly: AssemblyVersionAttribute("1.1.0.0")]
+[assembly: AssemblyInformationalVersionAttribute("1.1.0.6280")]
+[assembly: AssemblyFileVersionAttribute("1.1.0.6280")]
 [assembly: AssemblyDelaySignAttribute(false)]
 

@@ -68,7 +68,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			Assert.AreEqual("Andre", container.Item.First_Name);
 		}
 
-		[Test, ExpectedException(typeof(TypeLoadException))]
+		[Test, ExpectedException(typeof(TypeLoadException)), Ignore]
 		public void CreateAdapter_NoPrefixWithMethod_ThrowsException()
 		{
 			factory.GetAdapter<IPersonWithMethod>(dictionary);
@@ -706,7 +706,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		{
 			var getter = new CustomGetter();
 			var custom = new DictionaryDescriptor().AddGetter(getter);
-			var meta = factory.GetAdapter(typeof(IPhone), dictionary, custom) as IDictionaryAdapter;
+			factory.GetAdapter(typeof(IPhone), dictionary, custom);
 
 			Assert.AreEqual(1, getter.PropertiesFetched.Count);
 
@@ -1385,7 +1385,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 
 	public enum Color { Red, Green, Blue };
 
-	public interface IMutableName : IName, IEditableObject
+	public interface IMutableName : IName, IDictionaryEdit
 	{
 		[ValidateStringLengthAtLeast(10)]
 		[Group("A")]new string FirstName { get; set; }

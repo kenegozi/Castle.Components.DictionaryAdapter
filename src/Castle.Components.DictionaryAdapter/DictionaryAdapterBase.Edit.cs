@@ -38,11 +38,17 @@ namespace Castle.Components.DictionaryAdapter
 
 		public bool SupportsMultiLevelEdit { get; set; }
 
-		public bool IsDirty
+		public bool IsChanged
 		{
 			get
 			{
-				return IsEditing && updates.Any(level => level.Count > 0);
+				if (IsEditing && updates.Any(level => level.Count > 0))
+					return true;
+
+				return Properties.Values
+					.Where(prop => typeof(IChangeTracking).IsAssignableFrom(prop.PropertyType))
+					.Select(prop => GetProperty(prop.PropertyName))
+					.Cast<IChangeTracking>().Any(track => track.IsChanged);
 			}
 		}
 
@@ -103,6 +109,16 @@ namespace Castle.Components.DictionaryAdapter
 					}
 				}
 			}
+		}
+
+		public void RejectChanges()
+		{
+			CancelEdit();
+		}
+
+		public void AcceptChanges()
+		{
+			EndEdit();
 		}
 
 		public IDisposable SuppressEditingBlock()

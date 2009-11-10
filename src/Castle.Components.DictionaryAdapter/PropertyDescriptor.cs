@@ -32,7 +32,6 @@ namespace Castle.Components.DictionaryAdapter
 		private List<IDictionaryPropertyGetter> getters;
 		private List<IDictionaryPropertySetter> setters;
 		private List<IDictionaryKeyBuilder> keyBuilders;
-		private TypeConverter typeConverter;
 		private HybridDictionary state;
 
 		private static readonly object[] NoBehaviors = new object[0];
@@ -54,6 +53,7 @@ namespace Castle.Components.DictionaryAdapter
 			Property = property;
 			Behaviors = behaviors ?? NoBehaviors;
 			isDynamicProperty = typeof(IDynamicValue).IsAssignableFrom(property.PropertyType);
+			ObtainTypeConverter();
 		}
 
 		/// <summary>
@@ -126,27 +126,7 @@ namespace Castle.Components.DictionaryAdapter
 		/// Gets the type converter.
 		/// </summary>
 		/// <value>The type converter.</value>
-		public TypeConverter TypeConverter
-		{
-			get
-			{
-				if (typeConverter == null)
-				{
-					var converterType = AttributesUtil.GetTypeConverter(Property);
-
-					if (converterType != null)
-					{
-						typeConverter = (TypeConverter) Activator.CreateInstance(converterType);
-					}
-					else
-					{
-						typeConverter = TypeDescriptor.GetConverter(PropertyType);
-					}
-				}
-
-				return typeConverter;
-			}
-		}
+		public TypeConverter TypeConverter { get; private set; }
 
 		/// <summary>
 		/// Gets the key builders.
@@ -379,5 +359,19 @@ namespace Castle.Components.DictionaryAdapter
 		}
 
 		#endregion
+
+		private void ObtainTypeConverter()
+		{
+			var converterType = AttributesUtil.GetTypeConverter(Property);
+
+			if (converterType != null)
+			{
+				TypeConverter = (TypeConverter) Activator.CreateInstance(converterType);
+			}
+			else
+			{
+				TypeConverter = TypeDescriptor.GetConverter(PropertyType);
+			}	
+		}
 	}
 }

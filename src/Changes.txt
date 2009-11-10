@@ -1,6 +1,10 @@
 RC 4
 ====
 
+- Visit children properties to determine if changed
+
+- Use standard IChangeTracking to identify dirty
+
 - Added Validation group support
 
 - Added more fine-grained fetching strategy
