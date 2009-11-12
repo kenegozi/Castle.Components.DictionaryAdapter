@@ -78,10 +78,6 @@ namespace Castle.Components.DictionaryAdapter
 						{
 							storedValue = Array.CreateInstance(type.GetElementType(), 0);
 						}
-						else if (type == typeof(Guid))
-						{
-							storedValue = Guid.NewGuid();
-						}
 						else
 						{
 							object[] args = null;
@@ -126,7 +122,7 @@ namespace Castle.Components.DictionaryAdapter
 							initializer.Initialize(dictionaryAdapter, storedValue);
 						}
 
-						dictionaryAdapter.SetProperty(property.PropertyName, ref storedValue);	
+						property.SetPropertyValue(dictionaryAdapter, key, ref storedValue, dictionaryAdapter.Descriptor);
                     }
 				}
 			}

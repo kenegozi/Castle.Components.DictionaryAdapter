@@ -1275,7 +1275,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		public void CanGetGuidPropertyOnDemand()
 		{
 			var container = factory.GetAdapter<IItemContainer<IPerson>>(dictionary);
-			Assert.True(container.Id != new Guid());
+			Assert.True(container.Id == new Guid());
 		}
 
 		[Test]
@@ -1359,6 +1359,15 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			container.Positions = new[] { 1, 2, 3, 4 };
 			Assert.AreEqual(10, container.ReducePositions.Value);
 			Assert.IsTrue(notifyCalled);
+		}
+
+		[Test]
+		public void CanGetNewGuidPropertyOnDemand()
+		{
+			var conversions = factory.GetAdapter<IConversions>(dictionary);
+			var guid = conversions.Guid;
+			Assert.True(guid != new Guid());
+			Assert.AreEqual(conversions.Guid, guid);
 		}
 
 		[Test]
@@ -1668,7 +1677,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		decimal Decimal { get; set; }
 		String String { get; set; }
 		DateTime DateTime { get; set; }
-		Guid Guid { get; set; }
+		[NewGuid]Guid Guid { get; set; }
 		int? NullInt { get; set; }
 		float? NullFloat { get; set; }
 		double? NullDouble { get; set; }

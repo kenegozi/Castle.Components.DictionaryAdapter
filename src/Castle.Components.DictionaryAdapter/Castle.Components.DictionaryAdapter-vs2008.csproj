@@ -63,6 +63,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AbstractDictionaryAdapter.cs" />
     <Compile Include="Attributes\AttributesUtil.cs" />
+    <Compile Include="Attributes\NewGuidAttribute.cs" />
     <Compile Include="Attributes\GroupAttribute.cs" />
     <Compile Include="Attributes\FetchAttribute.cs" />
     <Compile Include="Attributes\MultiLevelEditAttribute.cs" />
