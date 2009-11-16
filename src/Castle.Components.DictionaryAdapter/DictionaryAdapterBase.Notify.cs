@@ -249,7 +249,7 @@ namespace Castle.Components.DictionaryAdapter
 			public TrackPropertyChangeScope(DictionaryAdapterBase adapter)
 			{
 				this.adapter = adapter;
-				readonlyProperties = adapter.Properties.Values.Where(
+				readonlyProperties = adapter.Meta.Properties.Values.Where(
 					pd => !pd.Property.CanWrite || pd.IsDynamicProperty)
 					.ToDictionary(pd => pd, pd => GetEffectivePropertyValue(pd));
 			}

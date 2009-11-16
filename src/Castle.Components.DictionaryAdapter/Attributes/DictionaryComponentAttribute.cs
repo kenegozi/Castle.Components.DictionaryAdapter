@@ -67,15 +67,15 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			if (storedValue == null)
 			{
-				var component = dictionaryAdapter.State[key];
+				var component = dictionaryAdapter.This.ExtendedProperties[key];
 
 				if (component == null)
 				{
 					var descriptor = new PropertyDescriptor(property.Property, null);
 					descriptor.AddKeyBuilder(new DictionaryKeyPrefixAttribute(key));
-					component = dictionaryAdapter.Factory.GetAdapter(
-						property.Property.PropertyType, dictionaryAdapter.Dictionary, descriptor);
-					dictionaryAdapter.State[key] = component;
+					component = dictionaryAdapter.This.Factory.GetAdapter(
+						property.Property.PropertyType, dictionaryAdapter.This.Dictionary, descriptor);
+					dictionaryAdapter.This.ExtendedProperties[key] = component;
 				}
 
 				return component;
@@ -91,7 +91,7 @@ namespace Castle.Components.DictionaryAdapter
 		public bool SetPropertyValue(IDictionaryAdapter dictionaryAdapter,
 			string key, ref object value, PropertyDescriptor property)
 		{
-			dictionaryAdapter.State.Remove(key);
+			dictionaryAdapter.This.ExtendedProperties.Remove(key);
 			return true;
 		}
 

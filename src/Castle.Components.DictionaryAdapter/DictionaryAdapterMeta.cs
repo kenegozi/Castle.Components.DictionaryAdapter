@@ -17,24 +17,25 @@ namespace Castle.Components.DictionaryAdapter
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 
-	/// <summary>
-	/// Contract for manipulating the Dictionary adapter.
-	/// </summary>
-	public interface IDictionaryAdapter : IDictionaryEdit, IDictionaryNotify, IDictionaryValidate, IDictionaryCreate
+	public class DictionaryAdapterMeta
 	{
-		DictionaryAdapterMeta Meta { get; }
+		public DictionaryAdapterMeta(Type type, IDictionaryInitializer[] initializers,
+									 object[] behaviors,  IDictionary<String, PropertyDescriptor> properties)
+		{
+			Type = type;
+			Initializers = initializers;
+			Behaviors = behaviors;
+			Properties = properties;
+		}
 
-		DictionaryAdapterInstance This { get; }
+		public Type Type { get; private set; }
 
-		object GetProperty(string propertyName);
+		public IDictionaryInitializer[] Initializers { get; private set; }
 
-		object ReadProperty(PropertyDescriptor property, string key);
+		public object[] Behaviors { get; private set; }
 
-		T GetPropertyOfType<T>(string propertyName);
-
-		bool SetProperty(string propertyName, ref object value);
-
-		void StoreProperty(PropertyDescriptor property, string key, object value);
+		public IDictionary<String, PropertyDescriptor> Properties { get; private set; }
 	}
 }

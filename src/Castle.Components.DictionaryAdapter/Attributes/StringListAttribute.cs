@@ -63,7 +63,8 @@ namespace Castle.Components.DictionaryAdapter
 						if (converter != null && converter.CanConvertFrom(typeof(string)))
 						{
 							var genericList = typeof(StringListWrapper<>).MakeGenericType(new[] {paramType});
-							return Activator.CreateInstance(genericList, key, storedValue, separator, dictionaryAdapter.Dictionary);
+							return Activator.CreateInstance(genericList, key, storedValue, separator, 
+															dictionaryAdapter.This.Dictionary);
 						}
 					}
 				}

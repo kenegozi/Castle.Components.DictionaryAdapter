@@ -88,7 +88,7 @@ namespace Castle.Components.DictionaryAdapter
 								constructor = (from ctor in type.GetConstructors()
 									let parms = ctor.GetParameters()
 									 where parms.Length == 1 && 
-										parms[0].ParameterType.IsAssignableFrom(dictionaryAdapter.Type)
+										parms[0].ParameterType.IsAssignableFrom(dictionaryAdapter.Meta.Type)
 									 select ctor).FirstOrDefault();
 
 								if (constructor != null) args = new[] { dictionaryAdapter };
@@ -122,7 +122,8 @@ namespace Castle.Components.DictionaryAdapter
 							initializer.Initialize(dictionaryAdapter, storedValue);
 						}
 
-						property.SetPropertyValue(dictionaryAdapter, key, ref storedValue, dictionaryAdapter.Descriptor);
+						property.SetPropertyValue(dictionaryAdapter, key, ref storedValue, 
+												  dictionaryAdapter.This.Descriptor);
                     }
 				}
 			}

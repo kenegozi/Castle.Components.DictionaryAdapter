@@ -1,6 +1,10 @@
 RC 4
 ====
 
+- Group meta and instance properties together
+
+- Standardize edit and non-edit mode with notifications
+
 - Visit children properties to determine if changed
 
 - Use standard IChangeTracking to identify dirty

@@ -14,68 +14,32 @@
 
 namespace Castle.Components.DictionaryAdapter
 {
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Collections.Specialized;
 	using System.ComponentModel;
 	using System.Linq;
 
 	public abstract partial class DictionaryAdapterBase : IDictionaryAdapter
 	{
-		private HybridDictionary state;
-
-		public DictionaryAdapterBase(Type type, IDictionaryAdapterFactory factory,
-									 IDictionary dictionary, PropertyDescriptor descriptor)
+		public DictionaryAdapterBase(DictionaryAdapterInstance instance)
 		{
-			Type = type;
-			Factory = factory;
-			Dictionary = dictionary;
-			Descriptor = descriptor;
+			This = instance;
 
-			CanEdit = typeof(IEditableObject).IsAssignableFrom(type);
-			CanNotify = typeof(INotifyPropertyChanged).IsAssignableFrom(type);
-			CanValidate = typeof(IDataErrorInfo).IsAssignableFrom(type);
+			CanEdit = typeof(IEditableObject).IsAssignableFrom(Meta.Type);
+			CanNotify = typeof(INotifyPropertyChanged).IsAssignableFrom(Meta.Type);
+			CanValidate = typeof(IDataErrorInfo).IsAssignableFrom(Meta.Type);
 
 			Initialize();
 		}
 
-		public Type Type { get; private set; }
+		public abstract DictionaryAdapterMeta Meta { get; }
 
-		public IDictionary State
-		{
-			get
-			{
-				if (state == null)
-					state = new HybridDictionary();
-				return state;
-			}
-		}
-
-		public IDictionary Dictionary { get; private set;  }
-
-		public PropertyDescriptor Descriptor { get; private set; }
-
-		public IDictionaryAdapterFactory Factory { get; private set; }
-
-		public abstract object[] Behaviors { get; }
-
-		public abstract IDictionaryInitializer[] Initializers { get; }
-
-		public abstract IDictionary<string, PropertyDescriptor> Properties { get; }
+		public DictionaryAdapterInstance This { get; private set; }
 
 		public virtual object GetProperty(string propertyName)
 		{
 			PropertyDescriptor descriptor;
-			if (Properties.TryGetValue(propertyName, out descriptor))
+			if (Meta.Properties.TryGetValue(propertyName, out descriptor))
 			{
-				object propertyValue;
-				if (GetEditedProperty(propertyName, out propertyValue))
-				{
-					return propertyValue;
-				}
-
-				propertyValue = descriptor.GetPropertyValue(this, propertyName, null, Descriptor);
+				var propertyValue = descriptor.GetPropertyValue(this, propertyName, null, This.Descriptor);
 				if (propertyValue is IEditableObject)
 				{
 					AddEditDependency((IEditableObject)propertyValue);
@@ -87,6 +51,16 @@ namespace Castle.Components.DictionaryAdapter
 			return null;
 		}
 
+		public object ReadProperty(PropertyDescriptor property, string key)
+		{
+			object propertyValue = null;
+			if (!GetEditedProperty(key, out propertyValue))
+			{
+				propertyValue = This.Dictionary[key];
+			}
+			return propertyValue;
+		}
+        
 		public T GetPropertyOfType<T>(string propertyName)
 		{
 			return (T)GetProperty(propertyName);
@@ -97,16 +71,11 @@ namespace Castle.Components.DictionaryAdapter
 			bool stored = false;
 
 			PropertyDescriptor descriptor;
-			if (Properties.TryGetValue(propertyName, out descriptor))
+			if (Meta.Properties.TryGetValue(propertyName, out descriptor))
 			{
-				if (EditProperty(propertyName, value))
-				{
-					return true;
-				}
-
 				if (!ShouldNotify)
 				{
-					stored = descriptor.SetPropertyValue(this, propertyName, ref value, Descriptor);
+					stored = descriptor.SetPropertyValue(this, propertyName, ref value, This.Descriptor);
 					Invalidate();
 					return stored;
 				}
@@ -119,7 +88,7 @@ namespace Castle.Components.DictionaryAdapter
 
 				var trackPropertyChange = TrackPropertyChange(descriptor, existingValue, value);
 
-				stored = descriptor.SetPropertyValue(this, propertyName, ref value, Descriptor);
+				stored = descriptor.SetPropertyValue(this, propertyName, ref value, This.Descriptor);
 
 				if (stored && trackPropertyChange != null)
 				{
@@ -130,14 +99,22 @@ namespace Castle.Components.DictionaryAdapter
 			return stored;
 		}
 
+		public void StoreProperty(PropertyDescriptor property, string key, object value)
+		{
+			if (property == null || !EditProperty(property, key, value))
+			{
+				This.Dictionary[key] = value;
+			}
+		}
+        
 		protected void Initialize()
 		{
-			foreach (var initializer in Initializers)
+			foreach (var initializer in Meta.Initializers)
 			{
-				initializer.Initialize(this, Behaviors);
+				initializer.Initialize(this, Meta.Behaviors);
 			}
 
-			foreach (var property in Properties.Values.Where(p => p.Fetch))
+			foreach (var property in Meta.Properties.Values.Where(p => p.Fetch))
 			{
 				GetProperty(property.PropertyName);
 			}

@@ -679,10 +679,10 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		[Test]
 		public void CanObtainDictionaryAdapterMeta()
 		{
-			var meta = factory.GetAdapter<IPerson>(dictionary) as IDictionaryAdapter;
-			Assert.AreSame(dictionary, meta.Dictionary);
-			Assert.AreSame(factory, meta.Factory);
-			Assert.AreEqual(8, meta.Properties.Count);
+			var adapter = factory.GetAdapter<IPerson>(dictionary) as IDictionaryAdapter;
+			Assert.AreSame(dictionary, adapter.This.Dictionary);
+			Assert.AreSame(factory, adapter.This.Factory);
+			Assert.AreEqual(8, adapter.Meta.Properties.Count);
 		}
 
 		[Test]
@@ -696,9 +696,9 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			Assert.AreEqual("Hello", dictionary["Dictionary"]);
 			Assert.AreEqual(1, dictionary["Properties"]);
 
-			var meta = i as IDictionaryAdapter;
-			Assert.AreSame(dictionary, meta.Dictionary);
-			Assert.AreEqual(3, meta.Properties.Count);
+			var adapter = i as IDictionaryAdapter;
+			Assert.AreSame(dictionary, adapter.This.Dictionary);
+			Assert.AreEqual(3, adapter.Meta.Properties.Count);
 		}
 
 		[Test]
@@ -1085,34 +1085,34 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		[Test]
 		public void WillNotRaisePropertyChangedEventWhenEditsAreCancelled()
 		{
-			var notifyCalled = false;
+			var notifyCalled = 0;
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanged += (s, e) =>
 			{
 				if (e.PropertyName == "Name")
-					notifyCalled = true;
+					notifyCalled++;
 			};
 			person.BeginEdit();
 			person.Name = "Craig";
 			person.CancelEdit();
-			Assert.IsFalse(notifyCalled);
+			Assert.AreEqual(2, notifyCalled);
 		}
 
 		[Test]
-		public void WillNotRaisePropertyChangedEventWhenNestedEditsAreAccepted()
+		public void WillRaisePropertyChangedEventWhenNestedEditsAreCancelled()
 		{
-			var notifyCalled = false;
+			var notifyCalled = 0;
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.BillingAddress.Line1 = "77 Nutmeg Dr.";
 			person.BillingAddress.PropertyChanged += (s, e) =>
 			{
 				if (e.PropertyName == "Line1")
-					notifyCalled = true;
+					notifyCalled++;
 			};
 			person.BeginEdit();
 			person.BillingAddress.Line1 = "600 Tulip Ln.";
 			person.CancelEdit();
-			Assert.IsFalse(notifyCalled);
+			Assert.AreEqual(2, notifyCalled);
 		}
 
 		[Test]
@@ -1133,7 +1133,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		}
 
 		[Test]
-		public void WillRaiseOnePropertyChangedEventsPerReadonlyPropertyWhenEditing()
+		public void WillRaisePropertyChangedEventsForReadonlyPropertyWhenEditing()
 		{
 			int notifications = 0;
 			var name = factory.GetAdapter<IMutableName>(dictionary);
@@ -1149,11 +1149,11 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			name.EndEdit();
 
 			Assert.AreEqual("Big Tex", name.FullName);
-			Assert.AreEqual(1, notifications);
+			Assert.AreEqual(2, notifications);
 		}
 
 		[Test]
-		public void WillNotRaisePropertyChangedEventsForReadonlyPropertyWhenCancelEditing()
+		public void WillRaisePropertyChangedEventsForReadonlyPropertyWhenCancelEditing()
 		{
 			int notifications = 0;
 			var name = factory.GetAdapter<IMutableName>(dictionary);
@@ -1169,7 +1169,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			name.CancelEdit();
 
 			Assert.AreEqual("", name.FullName);
-			Assert.AreEqual(0, notifications);
+			Assert.AreEqual(3, notifications);
 		}
 
 		[Test]

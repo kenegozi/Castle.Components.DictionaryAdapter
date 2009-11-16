@@ -230,7 +230,7 @@ namespace Castle.Components.DictionaryAdapter
 			string key, object storedValue, PropertyDescriptor descriptor)
 		{
 			key = GetKey(dictionaryAdapter, key, descriptor);
-			storedValue = storedValue ?? dictionaryAdapter.Dictionary[key];
+			storedValue = storedValue ?? dictionaryAdapter.ReadProperty(this, key);
 
 			if (getters != null)
 			{
@@ -323,7 +323,7 @@ namespace Castle.Components.DictionaryAdapter
 
 			if (!consumed)
 			{
-				dictionaryAdapter.Dictionary[key] = value;
+				dictionaryAdapter.StoreProperty(this, key, value);
 			}
 
 			return !consumed;

@@ -30,7 +30,7 @@ namespace Castle.Components.DictionaryAdapter
 			_groups = groups;
 			_adapter = adapter;
 
-			_propertyNames = (from property in _adapter.Properties.Values
+			_propertyNames = (from property in _adapter.Meta.Properties.Values
 					  from groupings in property.Behaviors.OfType<GroupAttribute>()
 					  where Array.IndexOf(_groups, groupings.Group) >= 0
 					  select property.PropertyName).Distinct().ToArray();

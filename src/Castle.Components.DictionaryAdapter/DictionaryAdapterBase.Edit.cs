@@ -22,18 +22,29 @@ namespace Castle.Components.DictionaryAdapter
 	public abstract partial class DictionaryAdapterBase
 	{
 		private int suppressEditingCount = 0;
-		private Stack<Dictionary<string, object>> updates;
+		private Stack<Dictionary<string, Edit>> updates;
 		private HashSet<IEditableObject> editDependencies;
+
+		struct Edit
+		{
+			public Edit(PropertyDescriptor property, object propertyValue)
+			{
+				Property = property;
+				PropertyValue = propertyValue;
+			}
+			public readonly PropertyDescriptor Property;
+			public object PropertyValue;
+		}
 
 		public bool CanEdit
 		{
 			get { return suppressEditingCount == 0 && updates != null; }
-			set { updates = value ? new Stack<Dictionary<string, object>>() : null; }
+			set { updates = value ? new Stack<Dictionary<string, Edit>>() : null; }
 		}
 
 		public bool IsEditing
 		{
-			get { return updates != null && updates.Count > 0; }
+			get { return CanEdit && updates != null && updates.Count > 0; }
 		}
 
 		public bool SupportsMultiLevelEdit { get; set; }
@@ -45,7 +56,7 @@ namespace Castle.Components.DictionaryAdapter
 				if (IsEditing && updates.Any(level => level.Count > 0))
 					return true;
 
-				return Properties.Values
+				return Meta.Properties.Values
 					.Where(prop => typeof(IChangeTracking).IsAssignableFrom(prop.PropertyType))
 					.Select(prop => GetProperty(prop.PropertyName))
 					.Cast<IChangeTracking>().Any(track => track.IsChanged);
@@ -56,7 +67,7 @@ namespace Castle.Components.DictionaryAdapter
 		{
 			if (CanEdit && (!IsEditing || SupportsMultiLevelEdit))
 			{
-				updates.Push(new Dictionary<string, object>());
+				updates.Push(new Dictionary<string, Edit>());
 			}
 		}
 
@@ -73,9 +84,36 @@ namespace Castle.Components.DictionaryAdapter
 					editDependencies.Clear();
 				}
 
-				updates.Pop();
+				using (SuppressEditingBlock())
+				{
+					using (TrackReadonlyPropertyChanges())
+					{
+						var top = updates.Peek();
 
-				Invalidate();
+						if (top.Count > 0)
+						{
+							foreach (var update in top.Values)
+							{
+								var existing = update;
+								existing.PropertyValue = GetProperty(existing.Property.PropertyName);
+							}
+
+							updates.Pop();
+
+							foreach (var update in top.Values.ToArray())
+							{
+								var oldValue = update.PropertyValue;
+								var newValue = GetProperty(update.Property.PropertyName);
+								
+								if (!Object.Equals(oldValue, newValue))
+								{
+									NotifyPropertyChanging(update.Property, oldValue, newValue);
+									NotifyPropertyChanged(update.Property, oldValue, newValue);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -87,26 +125,19 @@ namespace Castle.Components.DictionaryAdapter
                 {
 					var top = updates.Pop();
 
-					if (top.Count > 0)
+					if (top.Count > 0) foreach (var update in top.ToArray())
 					{
-						using (TrackReadonlyPropertyChanges())
-						{
-							foreach (var update in top.ToArray())
-							{
-								object value = update.Value;
-								SetProperty(update.Key, ref value);
-							}
-						}
+						StoreProperty(null, update.Key, update.Value.PropertyValue);
 					}
-
-					if (editDependencies != null)
+				}
+				
+				if (editDependencies != null)
+				{
+					foreach (var editDependency in editDependencies.ToArray())
 					{
-						foreach (var editDependency in editDependencies.ToArray())
-						{
-							editDependency.EndEdit();
-						}
-						editDependencies.Clear();
+						editDependency.EndEdit();
 					}
+					editDependencies.Clear();
 				}
 			}
 		}
@@ -138,10 +169,12 @@ namespace Castle.Components.DictionaryAdapter
 
 		protected bool GetEditedProperty(string propertyName, out object propertyValue)
 		{
-			if (IsEditing) foreach (var level in updates.ToArray())
+			if (updates != null) foreach (var level in updates.ToArray())
 			{
-				if (level.TryGetValue(propertyName, out propertyValue))
+				Edit edit;
+				if (level.TryGetValue(propertyName, out edit))
 				{
+					propertyValue = edit.PropertyValue;
 					return true;
 				}
 			}
@@ -149,12 +182,11 @@ namespace Castle.Components.DictionaryAdapter
 			return false;
 		}
 
-		protected bool EditProperty(string propertyName, object propertyValue)
+		protected bool EditProperty(PropertyDescriptor property, string key, object propertyValue)
 		{
 			if (IsEditing)
 			{
-				updates.Peek()[propertyName] = propertyValue;
-				Invalidate();
+				updates.Peek()[key] = new Edit(property, propertyValue);
 				return true;
 			}
 			return false;

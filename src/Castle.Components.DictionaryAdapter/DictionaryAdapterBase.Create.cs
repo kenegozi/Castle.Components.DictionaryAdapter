@@ -38,7 +38,7 @@ namespace Castle.Components.DictionaryAdapter
 		public object Create(Type type, IDictionary dictionary)
 		{
 			dictionary = dictionary ?? new HybridDictionary();
-			return Factory.GetAdapter(type, dictionary, Descriptor);
+			return This.Factory.GetAdapter(type, dictionary, This.Descriptor);
 		}
 
 		public T Create<T>(Action<T> init)

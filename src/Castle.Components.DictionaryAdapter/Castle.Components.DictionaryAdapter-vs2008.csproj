@@ -78,6 +78,8 @@
     <Compile Include="Attributes\DictionaryComponentAttribute.cs" />
     <Compile Include="Attributes\StringValuesAttribute.cs" />
     <Compile Include="CascadingDictionaryAdapter.cs" />
+    <Compile Include="DictionaryAdapterInstance.cs" />
+    <Compile Include="DictionaryAdapterMeta.cs" />
     <Compile Include="DictionaryDescriptor.cs" />
     <Compile Include="DictionaryValidateGroup.cs" />
     <Compile Include="Util\DynamicValue.cs" />

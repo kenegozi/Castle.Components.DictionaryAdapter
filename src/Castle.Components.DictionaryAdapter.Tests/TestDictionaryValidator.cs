@@ -45,9 +45,9 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		public string Validate(IDictionaryAdapter dictionaryAdapter)
 		{
 			List<String> errors = new List<string>();
-			var globalRules = AttributesUtil.GetTypeAttributes<IValidationRule>(dictionaryAdapter.Type);
+			var globalRules = AttributesUtil.GetTypeAttributes<IValidationRule>(dictionaryAdapter.Meta.Type);
 
-			foreach (var property in dictionaryAdapter.Properties.Values)
+			foreach (var property in dictionaryAdapter.Meta.Properties.Values)
 			{
 				var propertyRules = AttributesUtil.GetAttributes<IValidationRule>(property.Property);
 				var propertyValue = dictionaryAdapter.GetProperty(property.PropertyName);
@@ -61,7 +61,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 		public string Validate(IDictionaryAdapter dictionaryAdapter, PropertyDescriptor property)
 		{
 			List<String> errors = new List<string>();
-			var globalRules = AttributesUtil.GetTypeAttributes<IValidationRule>(dictionaryAdapter.Type);
+			var globalRules = AttributesUtil.GetTypeAttributes<IValidationRule>(dictionaryAdapter.Meta.Type);
 
 			var propertyRules = AttributesUtil.GetAttributes<IValidationRule>(property.Property);
 			var propertyValue = dictionaryAdapter.GetProperty(property.PropertyName);
