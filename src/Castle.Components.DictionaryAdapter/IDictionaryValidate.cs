@@ -26,7 +26,7 @@ namespace Castle.Components.DictionaryAdapter
 
 		bool IsValid { get; }
 
-		IDictionaryValidate ValidateGroups(params string[] groups);
+		IDictionaryValidate ValidateGroups(params object[] groups);
 
 		IEnumerable<IDictionaryValidator> Validators { get; }
 

@@ -26,7 +26,16 @@ namespace Castle.Components.DictionaryAdapter
 		/// Constructs a group assignment.
 		/// </summary>
 		/// <param name="group">The group name.</param>
-		public GroupAttribute(String group)
+		public GroupAttribute(object group)
+		{
+			Group = new [] { group };
+		}
+
+		/// <summary>
+		/// Constructs a group assignment.
+		/// </summary>
+		/// <param name="group">The group name.</param>
+		public GroupAttribute(params object[] group)
 		{
 			Group = group;
 		}
@@ -34,6 +43,6 @@ namespace Castle.Components.DictionaryAdapter
 		/// <summary>
 		/// Gets the group the property is assigned to.
 		/// </summary>
-		public String Group { get; private set; }
+		public object[] Group { get; private set; }
 	}
 }

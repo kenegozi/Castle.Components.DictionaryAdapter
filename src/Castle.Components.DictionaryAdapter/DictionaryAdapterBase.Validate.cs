@@ -67,7 +67,7 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		public IDictionaryValidate ValidateGroups(params string[] groups)
+		public IDictionaryValidate ValidateGroups(params object[] groups)
 		{
 			return new DictionaryValidateGroup(groups, this);
 		}

@@ -21,18 +21,18 @@ namespace Castle.Components.DictionaryAdapter
 
 	public class DictionaryValidateGroup : IDictionaryValidate, INotifyPropertyChanged
 	{
-		private readonly string[] _groups;
+		private readonly object[] _groups;
         private readonly IDictionaryAdapter _adapter;
 		private readonly string[] _propertyNames;
 
-		public DictionaryValidateGroup(string[] groups, IDictionaryAdapter adapter)
+		public DictionaryValidateGroup(object[] groups, IDictionaryAdapter adapter)
 		{
 			_groups = groups;
 			_adapter = adapter;
 
 			_propertyNames = (from property in _adapter.Meta.Properties.Values
 					  from groupings in property.Behaviors.OfType<GroupAttribute>()
-					  where Array.IndexOf(_groups, groupings.Group) >= 0
+					  where _groups.Intersect(groupings.Group).Any() 
 					  select property.PropertyName).Distinct().ToArray();
 
 			if (_propertyNames.Length > 0 && adapter.CanNotify)
@@ -82,7 +82,7 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		public IDictionaryValidate ValidateGroups(params string[] groups)
+		public IDictionaryValidate ValidateGroups(params object[] groups)
 		{
 			groups = _groups.Union(groups).ToArray();
 			return new DictionaryValidateGroup(groups, _adapter);
