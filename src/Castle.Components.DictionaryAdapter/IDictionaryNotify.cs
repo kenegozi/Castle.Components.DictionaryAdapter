@@ -35,32 +35,36 @@ namespace Castle.Components.DictionaryAdapter
 
 	#endregion
 
-	#region Class PropertyChangingEventArgs
+	#region Class PropertyModifyingEventArgs
 
-	public class PropertyChangingEventArgs : PropertyModifiedEventArgs
+	public class PropertyModifyingEventArgs : PropertyChangingEventArgs
 	{
-		public PropertyChangingEventArgs(String propertyName, object oldPropertyValue, object newPropertyValue)
-			: base(propertyName, oldPropertyValue, newPropertyValue)
+		public PropertyModifyingEventArgs(String propertyName, object oldPropertyValue, object newPropertyValue)
+			: base(propertyName)
 		{
+			OldPropertyValue = oldPropertyValue;
+			NewPropertyValue = newPropertyValue;
 		}
+
+		public object OldPropertyValue { get; private set; }
+
+		public object NewPropertyValue { get; private set; }
 
 		public bool Cancel { get; set; }
 	}
 
-	public delegate void PropertyChangingEventHandler(object sender, PropertyChangingEventArgs e);
+	public delegate void PropertyModifyingEventHandler(object sender, PropertyModifyingEventArgs e);
 
 	#endregion
 
 	/// <summary>
 	/// Contract for managing Dictionary adapter notifications.
 	/// </summary>
-	public interface IDictionaryNotify : INotifyPropertyChanged
+	public interface IDictionaryNotify : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		bool CanNotify { get; }
 
 		bool ShouldNotify { get; }
-
-		event PropertyChangingEventHandler PropertyChanging;
 
 		bool PropagateChildNotifications { get; set; }
 

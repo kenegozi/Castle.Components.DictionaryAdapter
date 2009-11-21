@@ -777,7 +777,7 @@ namespace Castle.Components.DictionaryAdapter.Tests
 			var person = factory.GetAdapter<IPerson>(dictionary);
 			person.PropertyChanging += (s, e) =>
 			{
-				e.Cancel = true;
+				((PropertyModifyingEventArgs)e).Cancel = true;
 			};
 
 			person.Name = "Craig";
