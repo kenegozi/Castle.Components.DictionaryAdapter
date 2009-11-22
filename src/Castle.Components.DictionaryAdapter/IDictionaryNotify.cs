@@ -73,6 +73,5 @@ namespace Castle.Components.DictionaryAdapter
 		void SuppressNotifications();
 
 		void ResumeNotifications();
-
 	}
 }
