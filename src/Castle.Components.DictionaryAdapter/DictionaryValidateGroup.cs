@@ -19,11 +19,12 @@ namespace Castle.Components.DictionaryAdapter
 	using System.ComponentModel;
 	using System.Linq;
 
-	public class DictionaryValidateGroup : IDictionaryValidate, INotifyPropertyChanged
+	public class DictionaryValidateGroup : IDictionaryValidate, INotifyPropertyChanged, IDisposable
 	{
 		private readonly object[] _groups;
         private readonly IDictionaryAdapter _adapter;
 		private readonly string[] _propertyNames;
+		private readonly PropertyChangedEventHandler _propertyChanged;
 
 		public DictionaryValidateGroup(object[] groups, IDictionaryAdapter adapter)
 		{
@@ -37,13 +38,12 @@ namespace Castle.Components.DictionaryAdapter
 
 			if (_propertyNames.Length > 0 && adapter.CanNotify)
 			{
-				_adapter.PropertyChanged += (sender, args) =>
+				_propertyChanged += (sender, args) =>
 				{
 					if (PropertyChanged != null)
-					{
 						PropertyChanged(this, args);
-					}
 				};
+				_adapter.PropertyChanged += _propertyChanged;
 			}
 		}
 
@@ -82,7 +82,7 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		public IDictionaryValidate ValidateGroups(params object[] groups)
+		public DictionaryValidateGroup ValidateGroups(params object[] groups)
 		{
 			groups = _groups.Union(groups).ToArray();
 			return new DictionaryValidateGroup(groups, _adapter);
@@ -96,6 +96,11 @@ namespace Castle.Components.DictionaryAdapter
 		public void AddValidator(IDictionaryValidator validator)
 		{
 			throw new NotSupportedException();
+		}
+
+		public void Dispose()
+		{
+			_adapter.PropertyChanged -= _propertyChanged;
 		}
 	}
 }
