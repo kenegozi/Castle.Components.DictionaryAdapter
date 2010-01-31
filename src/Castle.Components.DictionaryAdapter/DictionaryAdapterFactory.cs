@@ -120,8 +120,8 @@ namespace Castle.Components.DictionaryAdapter
 
 		#endregion
 
-		readonly Dictionary<Type, Type> _interfaceToAdapter = new Dictionary<Type, Type>();
-		readonly object _typesDictionaryLocker = new object();
+		readonly static Dictionary<Type, Type> _interfaceToAdapter = new Dictionary<Type, Type>();
+		readonly static object _typesDictionaryLocker = new object();
 		private object InternalGetAdapter(Type type, IDictionary dictionary, PropertyDescriptor descriptor)
 		{
 			if (!type.IsInterface)
