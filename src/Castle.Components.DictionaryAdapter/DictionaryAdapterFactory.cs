@@ -31,19 +31,6 @@ namespace Castle.Components.DictionaryAdapter
 	/// </summary>
 	public class DictionaryAdapterFactory : IDictionaryAdapterFactory
 	{
-		private readonly IDictionary<Assembly, string> assembliesNames;
-
-		#region Constructors
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DictionaryAdapterFactory"/> class.
-		/// </summary>
-		public DictionaryAdapterFactory()
-		{
-			assembliesNames = new Dictionary<Assembly, string>();
-		}
-
-		#endregion
 
 		#region IDictionaryAdapterFactory
 
@@ -120,8 +107,8 @@ namespace Castle.Components.DictionaryAdapter
 
 		#endregion
 
-		readonly static Dictionary<Type, Type> _interfaceToAdapter = new Dictionary<Type, Type>();
-		readonly static object _typesDictionaryLocker = new object();
+		readonly static Dictionary<Type, Type> InterfaceToAdapter = new Dictionary<Type, Type>();
+		readonly static object TypesDictionaryLocker = new object();
 		private object InternalGetAdapter(Type type, IDictionary dictionary, PropertyDescriptor descriptor)
 		{
 			if (!type.IsInterface)
@@ -130,18 +117,18 @@ namespace Castle.Components.DictionaryAdapter
 			}
 
 			Type adapterType;
-			if (_interfaceToAdapter.TryGetValue(type, out adapterType) == false)
+			if (InterfaceToAdapter.TryGetValue(type, out adapterType) == false)
 			{
-				lock (_typesDictionaryLocker)
+				lock (TypesDictionaryLocker)
 				{
-					if (_interfaceToAdapter.TryGetValue(type, out adapterType) == false)
+					if (InterfaceToAdapter.TryGetValue(type, out adapterType) == false)
 					{
 						var appDomain = Thread.GetDomain();
 						var adapterAssemblyName = GetAdapterAssemblyName(type);
 						var typeBuilder = CreateTypeBuilder(type, appDomain, adapterAssemblyName);
 						var adapterAssembly = CreateAdapterAssembly(type, typeBuilder, descriptor);
 						adapterType = CreateAdapterType(type, adapterAssembly);
-						_interfaceToAdapter[type] = adapterType;
+						InterfaceToAdapter[type] = adapterType;
 					}
 				}
 			}
@@ -492,20 +479,8 @@ namespace Castle.Components.DictionaryAdapter
 
 		private string GetAdapterAssemblyName(Type type)
 		{
-			return string.Concat(GetAssemblyName( type.Assembly ), ".",
+			return string.Concat(type.Assembly.GetName().Name, ".",
 				GetSafeTypeFullName(type), ".DictionaryAdapter" );
-		}
-
-		private string GetAssemblyName(Assembly assembly)
-		{
-			string assemblyName;
-			if (!assembliesNames.TryGetValue(assembly, out assemblyName))
-			{
-				assemblyName = assembly.GetName().Name;
-				assembliesNames[assembly] = assemblyName;
-			}
-
-			return assemblyName;
 		}
 
 		private static String GetAdapterFullTypeName(Type type)
