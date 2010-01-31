@@ -120,8 +120,8 @@ namespace Castle.Components.DictionaryAdapter
 
 		#endregion
 
-		#region Dynamic Type Generation
-
+		readonly Dictionary<Type, Type> _interfaceToAdapter = new Dictionary<Type, Type>();
+		readonly object _typesDictionaryLocker = new object();
 		private object InternalGetAdapter(Type type, IDictionary dictionary, PropertyDescriptor descriptor)
 		{
 			if (!type.IsInterface)
@@ -129,19 +129,26 @@ namespace Castle.Components.DictionaryAdapter
 				throw new ArgumentException("Only interfaces can be adapted");
 			}
 
-			var appDomain = Thread.GetDomain();
-			var adapterAssemblyName = GetAdapterAssemblyName(type);
-			var adapterAssembly = GetExistingAdapterAssembly(appDomain, adapterAssemblyName);
-
-			if (adapterAssembly == null)
+			Type adapterType;
+			if (_interfaceToAdapter.TryGetValue(type, out adapterType) == false)
 			{
-				var typeBuilder = CreateTypeBuilder(type, appDomain, adapterAssemblyName);
-				adapterAssembly = CreateAdapterAssembly(type, typeBuilder, descriptor);
+				lock (_typesDictionaryLocker)
+				{
+					if (_interfaceToAdapter.TryGetValue(type, out adapterType) == false)
+					{
+						var appDomain = Thread.GetDomain();
+						var adapterAssemblyName = GetAdapterAssemblyName(type);
+						var typeBuilder = CreateTypeBuilder(type, appDomain, adapterAssemblyName);
+						var adapterAssembly = CreateAdapterAssembly(type, typeBuilder, descriptor);
+						adapterType = CreateAdapterType(type, adapterAssembly);
+						_interfaceToAdapter[type] = adapterType;
+					}
+				}
 			}
-
-			return GetExistingAdapter(type, adapterAssembly, dictionary, descriptor);
+			return CreateAdapterInstance(dictionary, descriptor, adapterType);
 		}
 
+		#region Dynamic Type Generation
 		private static TypeBuilder CreateTypeBuilder(Type type, AppDomain appDomain, String adapterAssemblyName)
 		{
 			var assemblyName = new AssemblyName(adapterAssemblyName);
@@ -170,7 +177,7 @@ namespace Castle.Components.DictionaryAdapter
 			var binding = FieldAttributes.Private | FieldAttributes.Static;
 			var metaField = typeBuilder.DefineField("__meta", typeof(DictionaryAdapterMeta), binding);
 
-			CreateAdapterConstructor(type, typeBuilder);
+			CreateAdapterConstructor(typeBuilder);
 
 			object[] behaviors;
 			IDictionaryInitializer[] initializers;
@@ -196,7 +203,7 @@ namespace Castle.Components.DictionaryAdapter
 
 		#region CreateAdapterConstructor
 
-		private static void CreateAdapterConstructor(Type type, TypeBuilder typeBuilder)
+		private static void CreateAdapterConstructor(TypeBuilder typeBuilder)
 		{
 			var constructorBuilder = typeBuilder.DefineConstructor(
 				MethodAttributes.Public | MethodAttributes.HideBySig, CallingConventions.Standard, 
@@ -562,17 +569,15 @@ namespace Castle.Components.DictionaryAdapter
 			}
 		}
 
-		private object GetExistingAdapter(Type type, Assembly assembly, IDictionary dictionary,
-										  PropertyDescriptor descriptor)
+		private Type CreateAdapterType(Type type, Assembly assembly)
 		{
 			var adapterFullTypeName = GetAdapterFullTypeName(type);
-			var instance = new DictionaryAdapterInstance(dictionary, descriptor, this);
-			return Activator.CreateInstance(assembly.GetType(adapterFullTypeName, true), instance);
+			return assembly.GetType(adapterFullTypeName, true);
 		}
-
-		private Assembly GetExistingAdapterAssembly(AppDomain appDomain, string assemblyName)
+		private object CreateAdapterInstance(IDictionary dictionary, PropertyDescriptor descriptor, Type adapterType)
 		{
-			return Array.Find(appDomain.GetAssemblies(), assembly => GetAssemblyName(assembly) == assemblyName );
+            var instance = new DictionaryAdapterInstance(dictionary, descriptor, this);
+			return Activator.CreateInstance(adapterType, instance);
 		}
 
 		#endregion
