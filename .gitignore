@@ -1,0 +1,6 @@
+src/*.suo
+src/*.vcproj.*.user
+
+src/*/bin
+src/*/obj
+src/_ReSharper*
